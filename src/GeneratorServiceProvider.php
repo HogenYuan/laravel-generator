@@ -21,8 +21,7 @@ class GeneratorServiceProvider extends ServiceProvider
     {
         //发布资源
         $this->publishes([
-            __DIR__ . '/publish/Generator/' => app_path('Console\\Commands\\Generator\\'),
-            __DIR__ . '/publish/Generator/init/EmptyResource.php' => app_path(' \\Console\\Commands\\Generator\\init\\EmptyResource.php')
+            __DIR__ . '/publish/Generator/' => app_path('Console\\Commands\\Generator\\')
         ], 'generator');
     }
 
