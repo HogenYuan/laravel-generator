@@ -6,8 +6,8 @@ use NamespacedDummyModel;
 use NamespacedDummyRequest;
 use NamespacedDummyResource;
 use NamespacedDummyService;
+use BaseNamespaceResource\EmptyResource;
 use BaseNamespaceController\Controller;
-use App\Console\Commands\Generator\EmptyResource;
 
 /**
  * 方法
@@ -28,6 +28,7 @@ class DummyClass extends Controller
     public function index(DummyRequest $request){
         $validated = $request->validated();
         $dummyModels = DummyModel::query()
+            ->filter($validated)
             ->orderByDesc('id')
             ->paginate();
         return DummyResource::collection($dummyModels);

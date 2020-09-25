@@ -54,7 +54,7 @@ class MakeResource extends BaseMakeResource
      *
      * @var boolean
      */
-    protected $createFilterHelper = true;
+    protected $createFilter = true;
     /**
      * 手动配置
      * 生成的filter基类的路径 例: App/Models/Traits/Filter.php

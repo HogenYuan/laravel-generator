@@ -4,7 +4,7 @@
 <a href="LICENSE.md" title="MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square"></a>
 ### Introduction
 1. 根据自定义框架目录,修改*.stub生成自定义的初始代码
-2. 支持`model + filter + request + resource + service + controller + migration`
+2. 支持`model + filter + request + resource + service + controller + migration + test`
 3. 自动读取同名数据表并填充到 `model + resource + migration` 的字段
 ---
 ### Installation
@@ -29,6 +29,8 @@
 ## --force : 覆盖已存在文件
 
 例子：
+//有大小写规范
+
 * Path: app\Http\Controller\AdminApi\User\Example 
 php artisan admin:make-resource testExample --force --baseDir=Http --prefix=AdminApi --module=User\Example
 
@@ -44,7 +46,7 @@ protected $types = [
     'filter', 'model', 'request', 'resource', 'service', 'controller', 'test', 'migration'
 ];
 ```
- * 选择需要生成的组件
+ * 选择需要生成的组件,filter和test默认不开启
  * 有先后顺序之分，需按照上图顺序填写
 ---
 
@@ -62,13 +64,14 @@ protected $pathFormat = [
 ```
  * 默认
  * 在此修改各模块的路径规则设置
- * inBaseDir决定是否在BaseDir ```Http```内
- * prefix决定是否有二级前缀
+ * inBaseDir决定是否在BaseDir内，默认```Http```
+ * prefix决定是否在二级前缀内
 ---
 ```php
-protected $createFilterHelper = true;
+protected $createFilterHelper = false;
 protected $baseFilterHelperPath = "Models\Traits\Filter";
 ```
+* filter默认不开启
 * 在此修改是否需要新建trait特征 filter
 ---
 ### Code Format修改默认代码格式

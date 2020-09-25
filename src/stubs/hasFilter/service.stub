@@ -1,0 +1,89 @@
+<?php
+
+namespace DummyNamespace;
+
+use NamespacedDummyModel;
+use BaseNamespaceService\BaseService;
+
+/**
+ * Class DummyClass
+ *
+ * @package DummyNamespace
+ */
+class DummyClass extends BaseService
+{
+    public const FOR_INDEX = 'index';
+    public const FOR_INFO = 'info';
+    public const FOR_CREATE = 'create';
+    public const FOR_UPDATE = 'update';
+
+    /**
+     * 新建
+     *
+     * @param array $data
+     *
+     * @return \NamespacedDummyModel
+     */
+    public static function create(array $data): DummyModel
+    {
+        $attributes = static::mapAttributes($data, static::FOR_CREATE);
+
+        $dummyModel = DummyModel::create($attributes);
+
+        return $dummyModel;
+    }
+
+
+    /**
+     * 更新
+     *
+     * @param  \NamespacedDummyModel  $dummyModel
+     * @param array                   $data
+     *
+     * @return \NamespacedDummyModel
+     */
+    public static function update(DummyModel $dummyModel, array $data): DummyModel {
+        $attributes = static::mapAttributes($data, static::FOR_UPDATE);
+
+        if ($dummyModel->fill($attributes)->isDirty()) {
+            $dummyModel->save();
+        }
+
+        return $dummyModel;
+    }
+
+    /**
+     * 删除
+     *
+     * @param  \NamespacedDummyModel  $dummyModel
+     *
+     * @throws \Exception
+     */
+    public static function delete(DummyModel $dummyModel): void
+    {
+        $dummyModel->delete();
+    }
+
+    /**
+     * 转换属性
+     *
+     * @param array $data
+     * @param string $for
+     * @param array  $mergeData
+     *
+     * @return array
+     */
+    protected static function mapAttributes(array $data, string $for, array $mergeData = []): array
+    {
+        $collection = collect($data);
+        if ($for === static::FOR_CREATE) {
+            $collection = $collection->merge([
+                //合并转换
+            ]);
+            if (!empty($mergeData)) {
+                $collection = $collection->merge($mergeData);
+            }
+        }
+        return $collection->all();
+    }
+}

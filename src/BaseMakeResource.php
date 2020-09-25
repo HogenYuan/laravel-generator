@@ -92,7 +92,7 @@ class BaseMakeResource extends GeneratorCommand
      *
      * @var boolean
      */
-    protected $createFilterHelper = true;
+    protected $createFilter = false;
     /**
      * 手动配置
      * 生成的filter基类的路径 例: App/Models/Traits/Filter.php
@@ -262,7 +262,7 @@ class BaseMakeResource extends GeneratorCommand
         }
 
         //新建filterHelpers
-        if ($this->createFilterHelper && $this->nowType == 'model') {
+        if ($this->createFilter && $this->nowType == 'model') {
             $stubName             = 'filter';                 //读取filterHelpers文件名
             $baseFilterHelperPath = $this->baseFilterHelperPath;
             if ($this->pathFormat['model']['inBaseDir']) {
@@ -619,7 +619,8 @@ class BaseMakeResource extends GeneratorCommand
                 }
                 $type = Str::Ucfirst($type);
                 if (!in_array($column, $this->resourceNoFillableFields)) {
-                    $dummyResourceReturn .= "'{$column}' => static::prop{$type}('{$column}'),\r\n            ";
+//                  $dummyResourceReturn .= "'{$column}' => static::prop{$type}('{$column}'),\r\n            ";
+                    $dummyResourceReturn .= "'{$column}' => ".'$this->'."{$column},\r\n            ";
                 }
             }
         }
