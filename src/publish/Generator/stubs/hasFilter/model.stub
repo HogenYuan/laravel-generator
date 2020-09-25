@@ -4,6 +4,7 @@ namespace DummyNamespace;
 
 use BaseNamespaceModel\Model;
 use Illuminate\Database\Eloquent\Builder;
+use BaseNamespaceFilter;
 
 /**
  * Class DummyClass
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class DummyClass extends Model
 {
+    use Filter;
     /**
      * 表名
      *
@@ -34,6 +36,25 @@ class DummyClass extends Model
     protected $fillable = [
         DummyFillable
     ];
+
+    /**
+     * 查询器
+     */
+    public function filters(): array
+    {
+        return [
+        ];
+//        return [
+//            'status',
+//            'name'         => ['like', '%?%'],
+//            'nickname'     => function ($val) {
+//                //需要在model中关联并在query中with('关联Model')
+//                return $this->filterBuilder->whereHas('Model', function (Builder $query) use ($val) {
+//                    $query->where('nickname', 'like', "%{$val}%");
+//                });
+//            },
+//        ];
+    }
 
     /**
      * 返回该字段自动设置为 Carbon 对象

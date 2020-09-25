@@ -27,56 +27,92 @@
 ## --prefix= : 指定二级前缀(大小写规范) 默认：AdminApi
 ## --baseDir= : 指定一级目录(大小写规范) 默认：Http
 ## --force : 覆盖已存在文件
+## --filter : 使用filter筛选类
+## --test : 生成测试文件
 
 例子：
 //有大小写规范
 
-* Path: app\Http\Controller\AdminApi\User\Example 
+* Path: App\Http\Controller\AdminApi\User\Example 
 php artisan admin:make-resource testExample --force --baseDir=Http --prefix=AdminApi --module=User\Example
 
-* Path: app\Admin\Controller\User\Example
-php artisan admin:make-resource testExample --force --baseDir=Admin  --module=User\Example
+* Path: App\Admin\Controller\User\Example
+php artisan admin:make-resource testExample --force --filter --baseDir=Admin  --module=User\Example
 ```
 ---
 ### Deployment自定义配置
-**Generator\\MakeResource.php**
 
+**Generator\\MakeResource.php**
 ```php
 protected $types = [
-    'filter', 'model', 'request', 'resource', 'service', 'controller', 'test', 'migration'
+    'model', 'request', 'resource', 'service', 'controller', 'test', 'migration'
 ];
 ```
  * 选择需要生成的组件,filter和test默认不开启
  * 有先后顺序之分，需按照上图顺序填写
 ---
-
+##### 目录规则
 ```php
 protected $pathFormat = [
     'model'      => ['inBaseDir' => false, 'prefix' => ''],
     'service'    => ['inBaseDir' => false, 'prefix' => ''],
     'test'       => ['inBaseDir' => false, 'prefix' => true],
-    'filter'     => ['inBaseDir' => true, 'prefix' => true],
     'request'    => ['inBaseDir' => true, 'prefix' => true],
     'resource'   => ['inBaseDir' => true, 'prefix' => true],
     'controller' => ['inBaseDir' => true, 'prefix' => true],
     'migration'  => ['inBaseDir' => false, 'prefix' => ''],
 ];
 ```
- * 默认
- * 在此修改各模块的路径规则设置
+ * 在此修改各模块的路径规则设置，会影响各文件的命名空间和类名
  * inBaseDir决定是否在BaseDir内，默认```Http```
  * prefix决定是否在二级前缀内
 ---
+##### Filter筛选器
 ```php
-protected $createFilterHelper = false;
+protected $createFilter = false;
 protected $baseFilterHelperPath = "Models\Traits\Filter";
 ```
-* filter默认不开启
-* 在此修改是否需要新建trait特征 filter
+* 默认不开启
+* 生成的filter基类的路径 例: App/Models/Traits/Filter.php
+* 路径生成只遵循$pathFormat中model的inBaseDir规则，不遵循prefix，避免个trait的生成
 ---
-### Code Format修改默认代码格式
+#####  数据库字段填充
+```php
+/**
+ * 手动配置
+ * resource文件中不需要添加到 $fillable 的字段
+ *
+ * @var string[]
+ */
+protected $resourceNoFillableFields = [
+    'update_time',
+    'updated_time',
+    'delete_time',
+    'deleted_time',
+];
+
+/**
+ * 手动配置
+ * model文件中不需要添加到 $fillable 的字段
+ *
+ * @var string[]
+ */
+
+protected $modelNoFillableFields = [
+    'id',
+    'create_time',
+    'created_time',
+    'update_time',
+    'updated_time',
+    'delete_time',
+    'deleted_time',
+];
+```
+
+---
+### Code Format 修改默认代码格式
 * 参考各stub配置自定义默认格式
-* 以下stub均为我的代码习惯，可自行修改
+* 以下stub为简化后的代码习惯，按需修改
 
 Generator\\stubs\\*.stub
 ```php
@@ -91,22 +127,8 @@ use NamespacedDummyService;
 use BaseNamespaceResource\EmptyResource;
 use BaseNamespaceController\Controller;
 
-/**
- * 方法
- *
- * Class DummyClass
- *
- * @package DummyNamespace
- */
 class DummyClass extends Controller
 {
-    /**
-     * 列表
-     *
-     * @param \NamespacedDummyRequest $request
-     *
-     * @return \NamespacedDummyResource[]
-     */
     public function index(DummyRequest $request){
         $validated = $request->validated();
         $dummyModels = DummyModel::query()
@@ -115,6 +137,7 @@ class DummyClass extends Controller
             ->paginate();
         return DummyResource::collection($dummyModels);
     }
+    ···
 }
 ```
 ---

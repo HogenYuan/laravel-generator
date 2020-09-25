@@ -6,13 +6,6 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 
 
-/**
- * 通用模型中的方法
- *
- * Trait ModelHelpers
- *
- * @package App\Admin\Traits
- */
 trait Filter
 {
     /**

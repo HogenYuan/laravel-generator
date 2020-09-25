@@ -2,7 +2,8 @@
 
 namespace DummyNamespace;
 
-use BaseNamespaceResource\BaseResource;
+use Illuminate\Http\Resources\Json\JsonResource as BaseResource;
+//use BaseNamespaceResource\BaseResource;
 
 /**
  * Class DummyClass
@@ -14,7 +15,7 @@ class DummyClass extends BaseResource
     /**
      * @return array
      */
-    public static function properties(): array
+    public function toArray($request) :array
     {
         return [
             DummyResourceReturn

@@ -2,7 +2,8 @@
 
 namespace DummyNamespace;
 
-use BaseNamespaceRequest\FormRequest;
+use Illuminate\Foundation\Http\FormRequest;
+//use BaseNamespaceRequest\FormRequest;
 
 class DummyClass extends FormRequest
 {

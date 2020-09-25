@@ -22,7 +22,8 @@ class GeneratorServiceProvider extends ServiceProvider
         //发布资源
         $this->publishes([
             __DIR__ . '/publish/Generator/' => app_path('Console\\Commands\\Generator\\'),
-        ],'generator');
+            __DIR__ . '/publish/Generator/init/EmptyResource.php' => app_path(' \\Console\\Commands\\Generator\\init\\EmptyResource.php')
+        ], 'generator');
     }
 
     /**
@@ -31,11 +32,5 @@ class GeneratorServiceProvider extends ServiceProvider
      */
     public function register()
     {
-//        $this->app->singleton('command.laravel.make.generator', function ($app) {
-//            return new MakeResource($app['files']);
-//        });
-//        $this->commands([
-//            'command.laravel.make.generator',
-//        ]);
     }
 }

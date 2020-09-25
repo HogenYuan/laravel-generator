@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands\Generator;
 
-use Hogen\Generator\BaseMakeResource;
 use Illuminate\Support\Str;
 
 class MakeResource extends BaseMakeResource
@@ -23,6 +22,7 @@ class MakeResource extends BaseMakeResource
         {--prefix= : 指定二级前缀(大小写规范) 默认：AdminApi}
         {--baseDir= : 指定一级目录(大小写规范) 默认：Http}
         {--force : 覆盖已存在文件}
+        {--filter : 使用filter筛选类}
         {--test : 生成控制器测试类}
     ';
     /**
@@ -50,15 +50,16 @@ class MakeResource extends BaseMakeResource
     ];
     /**
      * 手动配置
-     * 是否需要新建trait filter基类
+     * 是否需要使用filter筛选器
      *
      * @var boolean
      */
-    protected $createFilter = true;
+    protected $createFilter = false;
     /**
      * 手动配置
      * 生成的filter基类的路径 例: App/Models/Traits/Filter.php
-     *
+     * 路径生成只遵循$pathFormat中model的inBaseDir规则，不遵循prefix，避免多个trait的生成
+     * 
      * @var string
      */
     protected $baseFilterHelperPath = "Models/Traits/Filter";
@@ -129,8 +130,11 @@ class MakeResource extends BaseMakeResource
         $stub = parent::replaceClass($stub, $name);
         //替换namespace根路径
         foreach ($this->namespaceBasePaths as $type => $namespaceBasePath) {
-            $stub = str_replace('BaseNamespace' . str::ucfirst($type),
-                $namespaceBasePath, $stub);
+            $stub = str_replace(
+                'BaseNamespace' . str::ucfirst($type),
+                $namespaceBasePath,
+                $stub
+            );
         }
         switch ($this->nowType) {
             case "test":

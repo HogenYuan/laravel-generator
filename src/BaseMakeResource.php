@@ -1,6 +1,6 @@
 <?php
 
-namespace Hogen\Generator;
+namespace App\Console\Commands\Generator;
 
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Support\Facades\Schema;
@@ -24,6 +24,7 @@ class BaseMakeResource extends GeneratorCommand
         {--prefix= : 指定二级前缀(大小写规范) 默认：AdminApi}
         {--baseDir= : 指定一级目录(大小写规范) 默认：Http}
         {--force : 覆盖已存在文件}
+        {--filter : 使用filter筛选类}
         {--test : 生成控制器测试类}
     ';
     /**
@@ -88,7 +89,7 @@ class BaseMakeResource extends GeneratorCommand
     protected $createTest = false;
     /**
      * 手动配置
-     * 是否需要新建trait filter基类
+     * 是否需要使用filter筛选器
      *
      * @var boolean
      */
@@ -96,6 +97,7 @@ class BaseMakeResource extends GeneratorCommand
     /**
      * 手动配置
      * 生成的filter基类的路径 例: App/Models/Traits/Filter.php
+     * 路径生成只遵循$pathFormat中model的inBaseDir规则，不遵循prefix，避免多个trait的生成
      *
      * @var string
      */
@@ -176,11 +178,12 @@ class BaseMakeResource extends GeneratorCommand
      */
     protected function getOptionValue()
     {
-        $this->module      = $this->option('module');
-        $this->prefix      = $this->option('prefix');
-        $this->baseDir     = $this->option('baseDir');
-        $this->forceCreate = $this->option('force');
-        $this->createTest  = $this->option('test');
+        $this->module       = $this->option('module');
+        $this->prefix       = $this->option('prefix');
+        $this->baseDir      = $this->option('baseDir');
+        $this->forceCreate  = $this->option('force');
+        $this->createTest   = $this->option('test');
+        $this->createFilter = $this->option('filter');
     }
 
     /**
@@ -191,14 +194,14 @@ class BaseMakeResource extends GeneratorCommand
         $baseDir = $this->baseDir;
         $prefix  = $this->prefix;
         foreach ($this->pathFormat as $type => $typeFormat) {
-            $namespaceBasePath = str::ucfirst(self::APP_PATH);
+            $namespaceBasePath = Str::ucfirst(self::APP_PATH);
             if ($typeFormat['inBaseDir'] && $baseDir) {
                 $namespaceBasePath = $namespaceBasePath . "\\" . $baseDir;
             }
             if ($typeFormat['prefix'] && $prefix) {
                 $namespaceBasePath = $namespaceBasePath . "\\" . $prefix;
             }
-            $this->namespaceBasePaths[$type] = $namespaceBasePath . "\\" . str::plural(str::ucfirst($type));
+            $this->namespaceBasePaths[$type] = $namespaceBasePath . "\\" . Str::plural(Str::ucfirst($type));
         }
     }
 
@@ -265,9 +268,6 @@ class BaseMakeResource extends GeneratorCommand
         if ($this->createFilter && $this->nowType == 'model') {
             $stubName             = 'filter';                 //读取filterHelpers文件名
             $baseFilterHelperPath = $this->baseFilterHelperPath;
-            if ($this->pathFormat['model']['inBaseDir']) {
-                $baseFilterHelperPath = $this->baseDir . "/" . $baseFilterHelperPath;
-            }
             $this->createBaseFile($stubName, $baseFilterHelperPath, 'DummyFilterHelpersNamespace');
         }
 
@@ -315,7 +315,7 @@ class BaseMakeResource extends GeneratorCommand
      */
     protected function rootNamespace()
     {
-        $namespace = str::ucfirst(self::APP_PATH) . "\\";
+        $namespace = Str::ucfirst(self::APP_PATH) . "\\";
         $namespace = $this->getNamespaceByType($namespace);
         $namespace .= $this->module;
         $namespace = str_replace('/', '\\', $namespace);
@@ -409,14 +409,18 @@ class BaseMakeResource extends GeneratorCommand
     protected function createBaseFile($stubName, $basePath, $DummyNamespace): void
     {
         $fullPath  = '';
-        $namespace = str::ucfirst(self::APP_PATH) . "\\";
-        $fullPath  = $this->laravel['path'] . '\\' . $fullPath . $basePath;
-        $fullPath  = str_replace('/', '\\', $fullPath) . '.php';
-        $namespace = $namespace . Str::ucfirst(Str::plural($this->nowType)) . '\\Traits';
+        $namespace = str::ucfirst(self::APP_PATH);
+        if ($this->pathFormat['model']['inBaseDir']) {
+            //命名空间
+            $namespace = $namespace . "/" . $this->baseDir;
+        }
+        $filePath  = str_replace('/', '\\', $this->laravel['path'] . '\\' . $fullPath . $basePath);
+        $fullPath  = $filePath . '.php';
+        $namespace = $namespace . "\\" . Str::ucfirst(Str::plural($this->nowType)) . '\\Traits';
         $namespace = str_replace('/', '\\', $namespace);
-
         if (!$this->files->exists($fullPath)) {
-            $stub = $this->files->get(__DIR__ . "/stubs/{$stubName}.stub");
+            $this->files->ensureDirectoryExists(rtrim($filePath, 'Filter'));
+            $stub = $this->files->get(__DIR__ . "/stubs/hasFilter/{$stubName}.stub");
             $stub = str_replace($DummyNamespace, $namespace, $stub);
             $this->files->put($fullPath, $this->sortImports($stub));
             $this->info($this->type . "[{$stubName}] created successfully.");
@@ -499,7 +503,12 @@ class BaseMakeResource extends GeneratorCommand
      */
     protected function getStub()
     {
-        return __DIR__ . "/stubs/{$this->nowType}.stub";
+        if ($this->createFilter) {
+            $stubPath = __DIR__ . "/stubs/hasFilter/{$this->nowType}.stub";
+        } else {
+            $stubPath = __DIR__ . "/stubs/{$this->nowType}.stub";
+        }
+        return $stubPath;
     }
 
     /**
@@ -512,8 +521,11 @@ class BaseMakeResource extends GeneratorCommand
         $stub = parent::replaceClass($stub, $name);
         //替换namespace根路径
         foreach ($this->namespaceBasePaths as $type => $namespaceBasePath) {
-            $stub = str_replace('BaseNamespace' . str::ucfirst($type),
-                $namespaceBasePath, $stub);
+            $stub = str_replace(
+                'BaseNamespace' . str::ucfirst($type),
+                $namespaceBasePath,
+                $stub
+            );
         }
         switch ($this->nowType) {
             case "test":
@@ -534,6 +546,12 @@ class BaseMakeResource extends GeneratorCommand
                 }
                 break;
             case "model":
+                $baseFilterHelperPath = self::APP_PATH;
+                if ($this->pathFormat['model']['inBaseDir']) {
+                    $baseFilterHelperPath = $baseFilterHelperPath . "/" . $this->baseDir;
+                }
+                $baseFilterHelperPath = str_replace("/", "\\", Str::ucfirst($baseFilterHelperPath . "/" . $this->baseFilterHelperPath));
+                $stub = str_replace('BaseNamespaceFilter', $baseFilterHelperPath, $stub);
                 $stub = $this->replaceDummyModel($stub);
                 break;
             case "resource":
@@ -619,8 +637,8 @@ class BaseMakeResource extends GeneratorCommand
                 }
                 $type = Str::Ucfirst($type);
                 if (!in_array($column, $this->resourceNoFillableFields)) {
-//                  $dummyResourceReturn .= "'{$column}' => static::prop{$type}('{$column}'),\r\n            ";
-                    $dummyResourceReturn .= "'{$column}' => ".'$this->'."{$column},\r\n            ";
+                    //                  $dummyResourceReturn .= "'{$column}' => static::prop{$type}('{$column}'),\r\n            ";
+                    $dummyResourceReturn .= "'{$column}' => " . '$this->' . "{$column},\r\n            ";
                 }
             }
         }
