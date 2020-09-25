@@ -637,8 +637,8 @@ class BaseMakeResource extends GeneratorCommand
                 }
                 $type = Str::Ucfirst($type);
                 if (!in_array($column, $this->resourceNoFillableFields)) {
-                    //                  $dummyResourceReturn .= "'{$column}' => static::prop{$type}('{$column}'),\r\n            ";
-                    $dummyResourceReturn .= "'{$column}' => " . '$this->' . "{$column},\r\n            ";
+                    $dummyResourceReturn .= "'{$column}' => static::prop{$type}('{$column}'),\r\n            ";
+                    // $dummyResourceReturn .= "'{$column}' => " . '$this->' . "{$column},\r\n            ";
                 }
             }
         }

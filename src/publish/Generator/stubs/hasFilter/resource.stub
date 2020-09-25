@@ -2,8 +2,7 @@
 
 namespace DummyNamespace;
 
-use Illuminate\Http\Resources\Json\JsonResource as BaseResource;
-//use BaseNamespaceResource\BaseResource;
+use BaseNamespaceResource\BaseResource;
 
 /**
  * Class DummyClass
