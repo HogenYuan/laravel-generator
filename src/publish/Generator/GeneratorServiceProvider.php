@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin\Console\Commands\Generator;
+namespace App\Console\Commands\Generator;
 
 use Illuminate\Support\ServiceProvider;
 
