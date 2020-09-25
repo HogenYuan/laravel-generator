@@ -1,0 +1,66 @@
+<?php
+
+namespace DummyNamespace;
+
+use BaseNamespaceModel\Model;
+use Illuminate\Database\Eloquent\Builder;
+use BaseNamespaceModel\Traits\Filter;
+
+/**
+ * Class DummyClass
+ *
+ * @package DummyNamespace
+ */
+class DummyClass extends Model
+{
+    use Filter;
+    /**
+     * 表名
+     *
+     * @var string
+     */
+    protected $table = 'DummyTable';
+
+    /**
+     * model名称
+     *
+     * @var string
+     */
+    const MODEL_NAME = '';
+
+    /**
+     * 可以被批量赋值的字段
+     *
+     * @var array
+     */
+    protected $fillable = [
+        DummyFillable
+    ];
+
+    /**
+     * 查询器
+     */
+    public function filters(): array
+    {
+        return [
+        ];
+//        return [
+//            'status',
+//            'name'         => ['like', '%?%'],
+//            'nickname'     => function ($val) {
+//                //需要在model中关联并在query中with('关联Model')
+//                return $this->filterBuilder->whereHas('Model', function (Builder $query) use ($val) {
+//                    $query->where('nickname', 'like', "%{$val}%");
+//                });
+//            },
+//        ];
+    }
+
+    /**
+     * 返回该字段自动设置为 Carbon 对象
+     *
+     * @var array
+     */
+    protected $dates = [
+    ];
+}

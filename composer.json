@@ -1,0 +1,32 @@
+{
+    "name": "hogen/laravel-generator",
+    "description": "code generator for laravel",
+    "type": "package",
+    "keywords": [
+        "hogen",
+        "laravel",
+        "generator"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "hogen",
+            "email": "gy091826@163.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Hogen\\Generator\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Hogen\\Generator\\GeneratorServiceProvider"
+            ]
+        }
+    }
+}
