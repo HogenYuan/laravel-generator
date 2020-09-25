@@ -1,0 +1,23 @@
+<?php
+
+namespace DummyNamespace;
+
+use BaseNamespaceResource\BaseResource;
+
+/**
+ * Class DummyClass
+ *
+ * @package DummyNamespace
+ */
+class DummyClass extends BaseResource
+{
+    /**
+     * @return array
+     */
+    public static function properties(): array
+    {
+        return [
+            DummyResourceReturn
+        ];
+    }
+}

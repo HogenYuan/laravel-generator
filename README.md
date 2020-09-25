@@ -1,4 +1,4 @@
-## 后端代码生成器(Hogen\laravel-generator)
+## laravle代码生成包(hogen\laravel-generator)
 ---
 ### Introduction
 1. 根据目前框架生成默认代码
@@ -7,7 +7,8 @@
 4. 模板样式改造*.stub
 ---
 ### Installation
-    composer require xxxx
+    composer require hogen\laravel-generator
+    php artisan vendor:public --tag=generator
 ---
 ### Demo
 ```bash

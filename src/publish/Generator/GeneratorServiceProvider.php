@@ -1,6 +1,6 @@
 <?php
 
-namespace Hogen\Generator;
+namespace App\Admin\Console\Commands\Generator;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -19,10 +19,6 @@ class GeneratorServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //发布资源
-        $this->publishes([
-            __DIR__ . '/publish/Generator/' => app_path('Console\\Commands\\Generator\\'),
-        ],'generator');
     }
 
     /**
@@ -31,11 +27,11 @@ class GeneratorServiceProvider extends ServiceProvider
      */
     public function register()
     {
-//        $this->app->singleton('command.laravel.make.generator', function ($app) {
-//            return new MakeResource($app['files']);
-//        });
-//        $this->commands([
-//            'command.laravel.make.generator',
-//        ]);
+        $this->app->singleton('command.laravel.make.generator', function ($app) {
+            return new MakeResource($app['files']);
+        });
+        $this->commands([
+            'command.laravel.make.generator',
+        ]);
     }
 }

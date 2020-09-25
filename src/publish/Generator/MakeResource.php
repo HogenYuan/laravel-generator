@@ -1,7 +1,8 @@
 <?php
 
-namespace Hogen\Generator;
+namespace App\Admin\Console\Commands\Generator;
 
+use Hogen\Generator\BaseMakeResource;
 use Illuminate\Support\Str;
 
 class MakeResource extends BaseMakeResource
