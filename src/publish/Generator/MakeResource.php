@@ -119,4 +119,5 @@ class MakeResource extends BaseMakeResource
     protected function replaceClass($stub, $name)
     {
         return parent::replaceClass($stub, $name);
+    }
 }
