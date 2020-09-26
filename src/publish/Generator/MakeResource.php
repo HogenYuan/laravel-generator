@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Generator;
 
+use  Hogen\Generator\BaseMakeResource;
 use Illuminate\Support\Str;
 
 class MakeResource extends BaseMakeResource
@@ -111,57 +112,11 @@ class MakeResource extends BaseMakeResource
     ];
 
     /**
-     * Execute the console command.
-     */
-    public function handle()
-    {
-        $this->getOptionValue();
-        $this->addNamespaceBasePath();
-        return $this->makeBackend();
-    }
-
-    /**
      * 替换类中的dummy替换符
      *
      * @inheritDoc
      */
     protected function replaceClass($stub, $name)
     {
-        $stub = parent::replaceClass($stub, $name);
-        //替换namespace根路径
-        foreach ($this->namespaceBasePaths as $type => $namespaceBasePath) {
-            $stub = str_replace(
-                'BaseNamespace' . str::ucfirst($type),
-                $namespaceBasePath,
-                $stub
-            );
-        }
-        switch ($this->nowType) {
-            case "test":
-                $stub = str_replace('NamespacedDummyModel', $this->classes['model'], $stub);
-                $stub = str_replace('dummy-resource-name', Str::plural($this->argument('name')), $stub);
-                break;
-            case "controller":
-                //仅在controller.stub中添加替代各个控件的变量
-                foreach (['request', 'resource', 'model', 'service'] as $type) {
-                    if (in_array($type, $this->types)) {
-                        $stub = $this->replaceDummyResource($type, $stub);
-                    }
-                }
-                break;
-            case "service":
-                foreach (['model'] as $type) {
-                    $stub = $this->replaceDummyResource($type, $stub);
-                }
-                break;
-            case "model":
-                $stub = $this->replaceDummyModel($stub);
-                break;
-            case "resource":
-                $stub = $this->DummyResourceReturn($stub);
-                break;
-            default:
-        }
-        return $stub;
-    }
+        return parent::replaceClass($stub, $name);
 }

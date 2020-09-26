@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\Generator;
+namespace Hogen\Generator;
 
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Support\Facades\Schema;
@@ -420,7 +420,7 @@ class BaseMakeResource extends GeneratorCommand
         $namespace = str_replace('/', '\\', $namespace);
         if (!$this->files->exists($fullPath)) {
             $this->files->ensureDirectoryExists(rtrim($filePath, 'Filter'));
-            $stub = $this->files->get(__DIR__ . "/stubs/hasFilter/{$stubName}.stub");
+            $stub = $this->files->get(app_path("Console/Commands/Generator/stubs")."/hasFilter/{$stubName}.stub");
             $stub = str_replace($DummyNamespace, $namespace, $stub);
             $this->files->put($fullPath, $this->sortImports($stub));
             $this->info($this->type . "[{$stubName}] created successfully.");
@@ -443,7 +443,7 @@ class BaseMakeResource extends GeneratorCommand
         $fullPath  .= "{$now->year}_{$now->month}_{$now->day}_000000_create_{$tableName}_table.php";
         $fullPath  = str_replace('/', '\\', $fullPath);
         if (!$this->files->exists($fullPath)) {
-            $stub = $this->files->get(__DIR__ . "/stubs/{$stubName}.stub");
+            $stub = $this->files->get(app_path("Console/Commands/Generator/stubs"). "/{$stubName}.stub");
             $stub = $this->DummyMigration($stub);
             $this->files->put($fullPath, $this->sortImports($stub));
             $this->info($this->type . "[{$stubName}] created successfully.");
@@ -503,10 +503,11 @@ class BaseMakeResource extends GeneratorCommand
      */
     protected function getStub()
     {
+        $stubPath = app_path("Console/Commands/Generator/stubs");
         if ($this->createFilter) {
-            $stubPath = __DIR__ . "/stubs/hasFilter/{$this->nowType}.stub";
+            $stubPath = $stubPath . "/hasFilter/{$this->nowType}.stub";
         } else {
-            $stubPath = __DIR__ . "/stubs/{$this->nowType}.stub";
+            $stubPath = $stubPath . "/{$this->nowType}.stub";
         }
         return $stubPath;
     }
@@ -518,6 +519,8 @@ class BaseMakeResource extends GeneratorCommand
      */
     protected function replaceClass($stub, $name)
     {
+        $class = str_replace($this->getNamespace($name).'\\', '', $name);
+        $stub  = str_replace(['DummyClass', '{{ class }}', '{{class}}'], $class, $stub);
         $stub = parent::replaceClass($stub, $name);
         //替换namespace根路径
         foreach ($this->namespaceBasePaths as $type => $namespaceBasePath) {
@@ -603,14 +606,18 @@ class BaseMakeResource extends GeneratorCommand
         $table               = Str::plural(Str::snake($class));
         $stub                = str_replace('DummyTable', $table, $stub);
         $modelFillableFields = null;
-        if (Schema::hasTable($table)) {
-            $columns = Schema::getColumnListing($table);
-            foreach ($columns as $column) {
-                if (!in_array($column, $this->modelNoFillableFields)) {
-                    $modelFillableFields .= "'{$column}',";
+        try{
+            if (Schema::hasTable($table)) {
+                $columns = Schema::getColumnListing($table);
+                foreach ($columns as $column) {
+                    if (!in_array($column, $this->modelNoFillableFields)) {
+                        $modelFillableFields .= "'{$column}',";
+                    }
                 }
+                $modelFillableFields = rtrim($modelFillableFields, ',');
             }
-            $modelFillableFields = rtrim($modelFillableFields, ',');
+        }catch(\Exception $e){
+            $this->info("warning:数据库无法连接,无法填充Model数据字段");
         }
         $stub = str_replace('DummyFillable', $modelFillableFields, $stub);
         return $stub;
@@ -628,21 +635,39 @@ class BaseMakeResource extends GeneratorCommand
         $class               = Str::studly(trim($this->argument('name')));
         $table               = Str::plural(Str::snake($class));
         $dummyResourceReturn = null;
-        if (Schema::hasTable($table)) {
-            $columns = Schema::getColumnListing($table);
-            foreach ($columns as $column) {
-                $type = Schema::getColumnType($table, $column);
-                if ($type == 'boolean' || $type == 'integer') {
-                    $type = 'int';
-                }
-                $type = Str::Ucfirst($type);
-                if (!in_array($column, $this->resourceNoFillableFields)) {
-                    $dummyResourceReturn .= "'{$column}' => static::prop{$type}('{$column}'),\r\n            ";
-                    // $dummyResourceReturn .= "'{$column}' => " . '$this->' . "{$column},\r\n            ";
+        try{
+            if (Schema::hasTable($table)) {
+                $columns = Schema::getColumnListing($table);
+                foreach ($columns as $column) {
+                    $type = Schema::getColumnType($table, $column);
+                    if ($type == 'boolean' || $type == 'integer') {
+                        $type = 'int';
+                    }
+                    $type = Str::Ucfirst($type);
+                    if (!in_array($column, $this->resourceNoFillableFields)) {
+                        $dummyResourceReturn = $this->replaceDummyResourceReturn($dummyResourceReturn,$column,$type);
+                    }
                 }
             }
+        }catch(\Exception $e){
+            $this->info("warning:数据库无法连接,无法填充Resource数据字段");
         }
         $stub = str_replace('DummyResourceReturn', $dummyResourceReturn, $stub);
         return $stub;
+    }
+
+    /**
+     * 自定义替换资源内的Dummy
+     *
+     * @param string $dummyResourceReturn
+     * @param string $column
+     * @param string $type
+     *
+     * @return string
+     */
+    protected function replaceDummyResourceReturn(string $dummyResourceReturn,string $column ,string $type): string{
+        $dummyResourceReturn .= "'{$column}' => " . '$this->' . "{$column},\r\n            ";
+        //$dummyResourceReturn .= "'{$column}' => static::prop{$type}('{$column}'),\r\n            ";
+        return $dummyResourceReturn;
     }
 }
