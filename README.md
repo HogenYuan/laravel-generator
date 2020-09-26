@@ -10,8 +10,8 @@
 ### Installation
     composer require hogen\laravel-generator
     php artisan vendor:publish --tag=generator
+    # 如更新出现问题，执行 composer remove hogen\laravel-generator 并把 app\Console\Commmands\Generator 删除
 
-PS：如出现问题，执行 composer remove hogen\laravel-generator 并把 app\Console\Commmands\Generator 删除
 * config/app.php
 ```php
 'providers' => [
