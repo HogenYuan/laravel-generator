@@ -144,6 +144,5 @@ class DummyClass extends Controller
 ```
 ---
 ### TODO
-1. test自动测试需指令--test，尚未测试完善
-2. 前端根据组件一键生成代码
+1. 前端根据组件生成
 
