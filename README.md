@@ -9,7 +9,7 @@
 ---
 ### Installation
     composer require hogen\laravel-generator
-    php artisan vendor:public --tag=generator
+    php artisan vendor:publish --tag=generator
 
 * config/app.php
 ```php
