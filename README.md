@@ -3,6 +3,7 @@
 <a href="https://packagist.org/packages/hogen/laravel-generator" title="Total Downloads"><img src="https://img.shields.io/packagist/dt/hogen/laravel-generator.svg?style=flat-square"></a>
 <a href="LICENSE.md" title="MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square"></a>
 ### Introduction
+0.  由于最近在做后台,需要类似于Gii的代码生成包，网上可能有比较丰富的包，不过没去了解过，就根据自己习惯随手写了个方便自己使用的包，写的比较匆忙所以代码可能比较粗糙。目前只写了后端的，前端有时间在写。
 1. 根据自定义框架目录,修改*.stub生成自定义的初始代码
 2. 支持`model + filter + request + resource + service + controller + migration + test`
 3. 自动读取同名数据表并填充到 `model + resource + migration` 的字段
