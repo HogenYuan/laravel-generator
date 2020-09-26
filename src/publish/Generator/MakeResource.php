@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Generator;
 
 use Illuminate\Support\Str;
+use Hogen\Generator\BaseMakeResource;
 
 class MakeResource extends BaseMakeResource
 {
@@ -109,16 +110,23 @@ class MakeResource extends BaseMakeResource
         'delete_time',
         'deleted_time',
     ];
-
+    
     /**
-     * Execute the console command.
+     * 自定义替换资源内的Dummy
+     *
+     * @param string $dummyResourceReturn
+     * @param string $column
+     * @param string $type
+     *
+     * @return string
      */
-    public function handle()
-    {
-        $this->getOptionValue();
-        $this->addNamespaceBasePath();
-        return $this->makeBackend();
+    protected function replaceDummyResourceReturn(string $dummyResourceReturn,string $column ,string $type): string{
+        $dummyResourceReturn .= "'{$column}' => " . '$this->' . "{$column},\r\n            ";
+        //$dummyResourceReturn .= "'{$column}' => static::prop{$type}('{$column}'),\r\n            ";
+        return $dummyResourceReturn;
     }
+
+
 
     /**
      * 替换类中的dummy替换符
@@ -127,7 +135,8 @@ class MakeResource extends BaseMakeResource
      */
     protected function replaceClass($stub, $name)
     {
-        $stub = parent::replaceClass($stub, $name);
+        $class = str_replace($this->getNamespace($name).'\\', '', $name);
+        $stub  = str_replace(['DummyClass', '{{ class }}', '{{class}}'], $class, $stub);
         //替换namespace根路径
         foreach ($this->namespaceBasePaths as $type => $namespaceBasePath) {
             $stub = str_replace(
