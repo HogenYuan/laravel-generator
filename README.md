@@ -20,6 +20,7 @@
     App\Console\Commands\Generator\GeneratorServiceProvider::class
 ];
 ```
+
 ---
 ### Run
 * 请先根据自己的框架目录和代码格式修改默认代码格式stub文件
