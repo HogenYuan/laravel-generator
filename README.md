@@ -9,7 +9,7 @@
 3. 自动读取同名数据表并填充到 `model + resource + migration` 的字段
 ---
 ### Installation
-    composer require hogen\laravel-generator
+    composer require hogen/laravel-generator
     php artisan vendor:publish --tag=generator
     # 如更新出现问题，执行 composer remove hogen\laravel-generator 并把 app\Console\Commmands\Generator 删除
 
